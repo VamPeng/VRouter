@@ -1,0 +1,97 @@
+plugins {
+    id 'org.jetbrains.kotlin.android'
+}
+apply plugin: 'kotlin-kapt'
+
+apply plugin: 'com.android.application'
+
+rootProject.ext.username = 163
+
+android {
+    namespace 'com.vam.mydemo'
+    compileSdk androidId.compileSdk
+
+    defaultConfig {
+        applicationId androidId.applicationId
+        minSdk androidId.minSdk
+        targetSdk androidId.targetSdk
+        versionCode androidId.versionCode
+        versionName androidId.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [moduleName: project.name, packageNameForAPT:packageNameForAPT]
+            }
+        }
+
+    }
+
+    signingConfigs {
+        vam {
+            keyAlias 'vam'
+            keyPassword 'vambonne'
+            storeFile file('../vam.jks')
+            storePassword 'vambonne'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.vam
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField("String", "url", "${url.debug}")
+
+        }
+        release {
+            signingConfig signingConfigs.vam
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding = true
+    }
+
+    lintOptions {
+
+        abortOnError false
+
+        warningsAsErrors false
+
+        check 'NewApi'
+
+    }
+
+}
+
+dependencies {
+
+    implementation project(path: ':common')
+
+    implementation project(path: ':arouter_annotation')
+    kapt project(path: ':arouter_compiler')
+
+    dependencys.each { k, v -> implementation v }
+
+    testImplementation dependencyss.junit
+    androidTestImplementation dependencyss.androidxJunit
+    androidTestImplementation dependencyss.androidxText
+
+    if (rootProject.ext.isRelease) {
+        implementation project(path: ':person')
+        implementation project(path: ':order')
+    }
+
+}

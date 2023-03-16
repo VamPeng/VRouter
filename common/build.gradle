@@ -1,0 +1,19 @@
+apply plugin: 'com.android.library'
+apply from: "../gradle_library_common.gradle"
+
+android {
+    namespace 'com.vam.common'
+    compileSdk 33
+
+}
+
+dependencies {
+    implementation project(':arouter_annotation')
+
+    api project(':arouter_api')
+
+//    kapt project(path: ':arouter_compiler')
+
+//    api project(':arouter_annotation')
+//    api project(':arouter_api')
+}

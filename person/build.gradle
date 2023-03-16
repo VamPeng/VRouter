@@ -1,0 +1,113 @@
+plugins {
+    id 'org.jetbrains.kotlin.android'
+}
+
+if (!rootProject.ext.isRelease) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
+apply plugin: 'kotlin-kapt'
+
+def isRelease = rootProject.ext.isRelease
+def libName = 'com.vam.person'
+
+android {
+    namespace libName
+    compileSdk androidId.compileSdk
+
+    defaultConfig {
+        if (!isRelease) {
+            applicationId libName
+        }
+        minSdk androidId.minSdk
+        targetSdk androidId.targetSdk
+        versionCode androidId.versionCode
+        versionName androidId.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [moduleName: project.name,packageNameForAPT:packageNameForAPT]
+            }
+        }
+
+    }
+
+    signingConfigs {
+        vam {
+            keyAlias 'vam'
+            keyPassword 'vambonne'
+            storeFile file('../vam.jks')
+            storePassword 'vambonne'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.vam
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField("String", "url", "${url.debug}")
+
+        }
+        release {
+            signingConfig signingConfigs.vam
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding = true
+    }
+
+    lintOptions {
+
+        abortOnError false
+
+        warningsAsErrors false
+
+        check 'NewApi'
+
+    }
+
+    sourceSets {
+        main {
+            if (isRelease) { // 生产环境
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+                java {
+                    exclude('**/debug/**')
+                }
+            } else {
+                manifest.srcFile 'src/main/debug/AndroidManifest.xml'
+            }
+        }
+    }
+
+}
+
+dependencies {
+
+    implementation project(path: ':arouter_annotation')
+//    implementation project(path: ':arouter_api')
+    implementation project(path: ':common')
+    kapt project(path: ':arouter_compiler')
+
+    dependencys.each { k, v -> implementation v }
+
+    testImplementation dependencyss.junit
+    androidTestImplementation dependencyss.androidxJunit
+    androidTestImplementation dependencyss.androidxText
+
+}

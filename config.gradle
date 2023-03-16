@@ -1,0 +1,46 @@
+// 添加多个自定义属性
+ext {
+    username = "vam"
+
+    // 生产环境
+    isRelease = true
+
+    app = true
+    library = false
+
+    packageNameForAPT="com.vam.apt"
+
+    // 建立Map存储
+    androidId = [
+            applicationId: "com.vam.mydemo",
+            compileSdk   : 28,
+            minSdk       : 24,
+            targetSdk    : 28,
+            versionCode  : 1,
+            versionName  : "1.0",
+    ]
+
+    appid = [
+            app    : "com.vam.mydemo",
+            library: "com.vam.componet"
+    ]
+
+    url = [
+            debug  : '\"https://127.0.0.1/debug\"',
+            release: "\"https://127.0.0.1/release\"",
+    ]
+
+    dependencys = [
+            androidcore    : 'androidx.core:core-ktx:1.3.0',
+            appcompat      : 'androidx.appcompat:appcompat:1.3.0',
+            material       : 'com.google.android.material:material:1.4.0',
+            constrainlayout: 'androidx.constraintlayout:constraintlayout:2.0.1',
+    ]
+
+    dependencyss = [
+            junit        : 'junit:junit:4.13.2',
+            androidxJunit: 'androidx.test.ext:junit:1.1.3',
+            androidxText : 'androidx.test.espresso:espresso-core:3.4.0'
+    ]
+
+}
