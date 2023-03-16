@@ -2,6 +2,7 @@ package com.vam.compiler;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -205,6 +206,7 @@ public class ARouterProcessor extends AbstractProcessor {
         String finalClassName = Constants.GROUP_FILE_NAME + moduleName;
         log("APT生成路由组 Group 类文件: " + packageNameForAPT + "." + finalClassName);
 
+
         JavaFile.builder(packageNameForAPT,
                         TypeSpec.classBuilder(finalClassName)
                                 .addModifiers(Modifier.PUBLIC)
@@ -233,14 +235,14 @@ public class ARouterProcessor extends AbstractProcessor {
                     .addModifiers(Modifier.PUBLIC)
                     .returns(methodReturns);
 
-            methodBuilder.addStatement("$T<$T,$T> $N = new $T<>()",
-                    ClassName.get(Map.class),
-                    ClassName.get(String.class),
-                    ClassName.get(RouterBean.class),
+            methodBuilder.addCode("if($N == null) {\n" +
+                            "$N = new $T<>();\n",
+                    Constants.PATH_PARAMETER_NAME,
                     Constants.PATH_PARAMETER_NAME,
                     HashMap.class);
 
             List<RouterBean> pathList = entry.getValue();
+
             /*
              * pathMap.put("/app/MainActivity",
              *                 RouterBean.create(
@@ -249,7 +251,6 @@ public class ARouterProcessor extends AbstractProcessor {
              *                         "/app/MainActivity",
              *                         "app"));
              */
-
             for (RouterBean bean : pathList) {
 
                 methodBuilder
@@ -266,6 +267,8 @@ public class ARouterProcessor extends AbstractProcessor {
 
             }
 
+            methodBuilder.addCode("}\n");
+
             methodBuilder
                     .addStatement("return $N", Constants.PATH_PARAMETER_NAME);
 
@@ -273,8 +276,16 @@ public class ARouterProcessor extends AbstractProcessor {
             String finalClassName = Constants.PATH_FILE_NAME + entry.getKey();
             log("APT 生成路由 Path 类文件 为: " + packageNameForAPT + "." + finalClassName);
 
+            ParameterizedTypeName typeName = ParameterizedTypeName.get(
+                    ClassName.get(Map.class),
+                    ClassName.get(String.class),
+                    ClassName.get(RouterBean.class)
+            );
+            FieldSpec fieldSpec = FieldSpec.builder(typeName, Constants.PATH_PARAMETER_NAME, Modifier.PUBLIC).build();
+
             JavaFile.builder(packageNameForAPT,
                             TypeSpec.classBuilder(finalClassName)
+                                    .addField(fieldSpec)
                                     .addSuperinterface(ClassName.get(pathLoadType))
                                     .addModifiers(Modifier.PUBLIC)
                                     .addMethod(methodBuilder.build())
