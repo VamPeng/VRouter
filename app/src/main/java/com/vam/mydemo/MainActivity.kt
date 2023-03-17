@@ -2,13 +2,16 @@ package com.vam.mydemo
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.vam.annotation.ARouter
 import com.vam.annotation.model.RouterBean
 import com.vam.apt.`ARouter$$Group$$order`
 import com.vam.apt.`ARouter$$Group$$person`
+import com.vam.arouterapi.RouterManager
 import com.vam.mydemo.databinding.ActivityMainBinding
 
 const val mainPath = "/app/MainActivity"
@@ -22,22 +25,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        val vm = ViewModelProvider(this).get(MainViewModel::class.java)
+        vm.mainId++
+        Log.i("Vam", "mainId: " + vm.mainId)
+
         addClick("订单") {
-            val loadGroup = `ARouter$$Group$$order`()
-            val groupMap = loadGroup.loadGroup()
-            val clazz = groupMap["order"]
-            clazz?.let { clz ->
-
-                clz.newInstance()?.let { path ->
-                    val pathMap = path.loadPath()
-
-                    pathMap["/order/Order2Activity"]?.let { roterBean: RouterBean ->
-                        val intent = Intent(this, roterBean.clazz)
-                        startActivity(intent);
-                    }
-
-                }
-            }
+            RouterManager.navi(this, "/order/OrderActivity")
         }
 
         addClick("用户") {

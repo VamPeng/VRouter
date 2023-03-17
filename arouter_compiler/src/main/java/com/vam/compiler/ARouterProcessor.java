@@ -97,7 +97,7 @@ public class ARouterProcessor extends AbstractProcessor {
      */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        messager.printMessage(Diagnostic.Kind.NOTE, "annotations start process");
+        messager.printMessage(Diagnostic.Kind.NOTE, "annotations start process " + tempPathMap.size());
         if (!EmptyUtils.isEmpty(annotations)) {
 
             Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(ARouter.class);
@@ -135,7 +135,6 @@ public class ARouterProcessor extends AbstractProcessor {
 
             TypeMirror elementMirror = element.asType();
 
-            log("遍历的元素信息为: " + elementMirror.toString());
 
             ARouter aRouter = element.getAnnotation(ARouter.class);
 
@@ -145,6 +144,8 @@ public class ARouterProcessor extends AbstractProcessor {
                     .setPath(aRouter.path())
                     .setElement(element)
                     .build();
+
+            log("遍历的元素信息为: " + elementMirror.toString() + ", group: " + bean.getGroup());
 
             // 判断说明，@ARouter仅仅只能用在类智商，并且只能是Activity
             if (typeUtils.isSubtype(elementMirror, activityMirror)) {
